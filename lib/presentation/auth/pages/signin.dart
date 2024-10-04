@@ -1,17 +1,17 @@
 import 'package:algorhymns/common/widgets/appbar/app_bar.dart';
 import 'package:algorhymns/common/widgets/button/basic_app_button.dart';
 import 'package:algorhymns/core/configs/assets/app_vectors.dart';
-import 'package:algorhymns/presentation/auth/pages/signin.dart';
+import 'package:algorhymns/presentation/auth/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class SignupPage extends StatelessWidget{
-  const SignupPage({super.key});
+class SigninPage extends StatelessWidget{
+  const SigninPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: _signinText(context),
+      bottomNavigationBar: _signupText(context),
       appBar: BasicAppbar(
          title: Row(
           children: [
@@ -35,15 +35,13 @@ class SignupPage extends StatelessWidget{
           children: [
             _registerText(),
             const SizedBox(height: 50),
-            _fullNameField(context),
-            const SizedBox(height: 20),
             _emailField(context),
             const SizedBox(height: 20),
             _passwordField(context),
             const SizedBox(height: 20),
             BasicAppButton(
               onPressed: (){}, 
-              title: 'Tạo tài khoản'
+              title: 'Đăng Nhập'
               )
           ],
         ),
@@ -52,22 +50,12 @@ class SignupPage extends StatelessWidget{
   }
   Widget _registerText(){
     return const Text(
-      'Đăng Ký',
+      'Đăng Nhập',
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 25
       ),
       textAlign: TextAlign.center,
-    );
-  }
-
-  Widget _fullNameField(BuildContext context){
-    return TextField(
-      decoration: const InputDecoration(
-        hintText: 'Full Name'
-      ).applyDefaults(
-        Theme.of(context).inputDecorationTheme
-      ),
     );
   }
    Widget _emailField(BuildContext context){
@@ -88,7 +76,7 @@ class SignupPage extends StatelessWidget{
       ),
     );
   }
-  Widget _signinText(BuildContext context){
+  Widget _signupText(BuildContext context){
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 30
@@ -97,21 +85,22 @@ class SignupPage extends StatelessWidget{
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Đã có tài khoản?',
+            'Chưa có tài khoản?',
               style: TextStyle(
                 fontWeight: FontWeight.w500,
               fontSize: 14),
             ),
             TextButton(
-              onPressed: (){Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => const SigninPage(),
-                      ),
-                    );
-                  },
+              onPressed: (){
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const SignupPage(),
+                  ),
+                );
+              },
                child: const Text(
-                'Đăng nhập'
+                'Đăng Ký Ngay'
                )
           )
         ],

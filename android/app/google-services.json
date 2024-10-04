@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "314369334122",
+    "project_id": "algorhymns0101",
+    "storage_bucket": "algorhymns0101.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314369334122:android:e3129d5567f44e866c2313",
+        "android_client_info": {
+          "package_name": "com.quann.algorhymns"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRxPEsPOTMG66GYBfU0iwgdgnhFAjaffo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,7 @@
+import 'package:algorhymns/firebase_options.dart';
 import 'package:algorhymns/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:algorhymns/presentation/splash/pages/splash.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:algorhymns/core/configs/theme/app_theme.dart';
@@ -12,6 +14,9 @@ Future<void> main() async{
     storageDirectory: kIsWeb
       ? HydratedStorage.webStorageDirectory 
       :await getApplicationCacheDirectory(),
+  );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform
   );
   runApp(const MyApp());
 }

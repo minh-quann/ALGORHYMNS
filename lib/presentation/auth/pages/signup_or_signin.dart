@@ -3,6 +3,7 @@ import 'package:algorhymns/common/widgets/appbar/app_bar.dart';
 import 'package:algorhymns/common/widgets/button/basic_app_button.dart';
 import 'package:algorhymns/core/configs/assets/app_image.dart';
 import 'package:algorhymns/core/configs/assets/app_vectors.dart';
+import 'package:algorhymns/presentation/auth/pages/signin.dart';
 import 'package:algorhymns/presentation/auth/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -92,7 +93,7 @@ class SignupOrSigninPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (BuildContext context) => const SignupPage(),
+                                builder: (BuildContext context) => const SigninPage(),
                               ),
                             );
                           },
