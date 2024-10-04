@@ -10,6 +10,7 @@
 analyzer:
   errors:
     deprecated_member_use: ignore
+    await_only_futures: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

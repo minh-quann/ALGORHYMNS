@@ -1,12 +1,20 @@
 import 'package:algorhymns/common/widgets/appbar/app_bar.dart';
 import 'package:algorhymns/common/widgets/button/basic_app_button.dart';
 import 'package:algorhymns/core/configs/assets/app_vectors.dart';
+import 'package:algorhymns/data/models/auth/create_user_req.dart';
+import 'package:algorhymns/domain/usecases/auth/signup.dart';
 import 'package:algorhymns/presentation/auth/pages/signin.dart';
+import 'package:algorhymns/presentation/root/pages/root.dart';
+import 'package:algorhymns/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SignupPage extends StatelessWidget{
-  const SignupPage({super.key});
+  SignupPage({super.key});
+
+  final TextEditingController _fullName = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +50,28 @@ class SignupPage extends StatelessWidget{
             _passwordField(context),
             const SizedBox(height: 20),
             BasicAppButton(
-              onPressed: (){}, 
+              onPressed: () async {
+                var result = await sl<SignupUserCase>().call(
+                  params: CreateUserReq(
+                    fullName: _fullName.text.toString(), 
+                    email: _email.text.toString(), 
+                    password: _password.text.toString()
+                    )
+                );
+                result.fold(
+                  (l){
+                    var snackbar = SnackBar(content: Text(l));
+                    ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                  },
+                  (r){
+                    Navigator.pushAndRemoveUntil(
+                      context, 
+                      MaterialPageRoute(builder: (BuildContext context) => const RootPage()),
+                      (route) => false
+                    );
+                  }
+                );
+              }, 
               title: 'Tạo tài khoản'
               )
           ],
@@ -63,6 +92,7 @@ class SignupPage extends StatelessWidget{
 
   Widget _fullNameField(BuildContext context){
     return TextField(
+      controller: _fullName,
       decoration: const InputDecoration(
         hintText: 'Full Name'
       ).applyDefaults(
@@ -72,6 +102,7 @@ class SignupPage extends StatelessWidget{
   }
    Widget _emailField(BuildContext context){
     return TextField(
+      controller: _email,
       decoration: const InputDecoration(
         hintText: 'Email'
       ).applyDefaults(
@@ -81,8 +112,9 @@ class SignupPage extends StatelessWidget{
   }
    Widget _passwordField(BuildContext context){
     return TextField(
+      controller: _password,
       decoration: const InputDecoration(
-        hintText: 'PassWord'
+        hintText: 'Password'
       ).applyDefaults(
         Theme.of(context).inputDecorationTheme
       ),
@@ -106,7 +138,7 @@ class SignupPage extends StatelessWidget{
               onPressed: (){Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (BuildContext context) => const SigninPage(),
+                        builder: (BuildContext context) => SigninPage(),
                       ),
                     );
                   },

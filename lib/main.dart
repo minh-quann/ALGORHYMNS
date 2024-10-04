@@ -1,6 +1,7 @@
 import 'package:algorhymns/firebase_options.dart';
 import 'package:algorhymns/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:algorhymns/presentation/splash/pages/splash.dart';
+import 'package:algorhymns/service_locator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ Future<void> main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
   );
+  await inititalizeDependencies();
   runApp(const MyApp());
 }
 
