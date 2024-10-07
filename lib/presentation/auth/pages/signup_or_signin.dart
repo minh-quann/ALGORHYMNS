@@ -32,7 +32,7 @@ class SignupOrSigninPage extends StatelessWidget {
           Align(
             alignment: Alignment.bottomLeft,
             child: Image.asset(
-              AppImage.authBG,
+              AppImages.authBG,
             ),
           ),
           Align(
@@ -76,7 +76,7 @@ class SignupOrSigninPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (BuildContext context) =>  SignupPage(),
+                                builder: (BuildContext context) =>  const SignupPage(),
                               ),
                             );
                           },
@@ -93,7 +93,7 @@ class SignupOrSigninPage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (BuildContext context) => SigninPage(),
+                                builder: (BuildContext context) => const SigninPage(),
                               ),
                             );
                           },

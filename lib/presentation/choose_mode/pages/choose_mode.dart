@@ -25,7 +25,7 @@ class ChooseModePage extends StatelessWidget {
               image: DecorationImage(
                 fit: BoxFit.fill,
                 image: AssetImage(
-                  AppImage.chooseModeBG,
+                  AppImages.chooseModeBG,
                 )
               )
             ),

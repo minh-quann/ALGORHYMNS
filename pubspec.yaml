@@ -20,6 +20,9 @@ dependencies:
   firebase_auth:
   get_it:
   dartz:
+  cloud_firestore: 
+  just_audio: 
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:

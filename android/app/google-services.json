@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "758889243967",
-    "project_id": "algorhymns-db17e",
-    "storage_bucket": "algorhymns-db17e.appspot.com"
+    "project_number": "1058917940423",
+    "project_id": "algorhymns04",
+    "storage_bucket": "algorhymns04.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:758889243967:android:06c1e90210079cce919f8a",
+        "mobilesdk_app_id": "1:1058917940423:android:b262c85f04b707fd1952e2",
         "android_client_info": {
           "package_name": "com.quann.algorhymns"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC3N7RHeKidbvNaEu6Zs55_yxM9XoSwU5k"
+          "current_key": "AIzaSyCFG_xHPG6pCn48daABbV6SaSZIqrI2UTE"
         }
       ],
       "services": {

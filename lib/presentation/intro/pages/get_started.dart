@@ -23,7 +23,7 @@ class GetStartedPage extends StatelessWidget{
               image: DecorationImage(
                 fit: BoxFit.fill,
                 image: AssetImage(
-                  AppImage.introBG,
+                  AppImages.introBG,
                 )
               )
             ),
