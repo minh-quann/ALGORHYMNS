@@ -18,11 +18,13 @@ dependencies:
   path_provider:
   firebase_core:
   firebase_auth:
+  firebase_storage:
   get_it:
   dartz:
   cloud_firestore: 
   just_audio: 
   shared_preferences: ^2.0.13
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:

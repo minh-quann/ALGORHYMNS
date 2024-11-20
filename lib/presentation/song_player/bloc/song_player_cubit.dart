@@ -1,42 +1,46 @@
+import 'dart:async';
+
 import 'package:algorhymns/presentation/song_player/bloc/song_player_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-class SongPlayerCubit extends Cubit<SongPlayerState> {
 
+class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
+  Timer? syncLyricTimer;
 
   Duration songDuration = Duration.zero;
   Duration songPosition = Duration.zero;
 
-  SongPlayerCubit() : super(SongPlayerLoading()) {
+  bool showLyrics = false;
 
-    audioPlayer.positionStream.listen((position) { 
+  SongPlayerCubit() : super (SongPlayerLoading()) {
+    audioPlayer.positionStream.listen((position) {
       songPosition = position;
       updateSongPlayer();
     });
 
-    audioPlayer.durationStream.listen((duration) { 
-      songDuration = duration!;
+    audioPlayer.durationStream.listen((duration) {
+      if (songDuration == Duration.zero) {
+        songDuration = duration!;
+      }
     });
   }
 
   void updateSongPlayer() {
     emit(
-      SongPlayerLoaded()
+        SongPlayerLoaded(songPosition)
     );
   }
 
-
-  Future<void> loadSong(String url) async{
-    print(url);
+  Future<void> loadSong(String url) async {
     try {
       await audioPlayer.setUrl(url);
       emit(
-        SongPlayerLoaded()
+          SongPlayerLoaded(songPosition)
       );
-    } catch(e){
+    } catch (e) {
       emit(
-        SongPlayerFailure()
+          SongPlayerFailure()
       );
     }
   }
@@ -47,14 +51,24 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     } else {
       audioPlayer.play();
     }
+
     emit(
-      SongPlayerLoaded()
+        SongPlayerLoaded(songPosition)
     );
   }
-  
+
   @override
   Future<void> close() {
     audioPlayer.dispose();
+    syncLyricTimer?.cancel();
     return super.close();
   }
+
+  void toggleLyrics() {
+    showLyrics = !showLyrics;
+    emit(
+        SongPlayerLoaded(songPosition)
+    );
+  }
+
 }
