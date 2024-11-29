@@ -11,20 +11,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  cupertino_icons: 
   flutter_svg: 
   flutter_bloc:
   hydrated_bloc:
   path_provider:
-  firebase_core:
-  firebase_auth:
+  firebase_core: 
+  firebase_auth: 
+  sign_in_button: 
+  google_sign_in: 
   firebase_storage:
   get_it:
   dartz:
   cloud_firestore: 
   just_audio: 
-  shared_preferences: ^2.0.13
-  http: ^0.13.5
+  shared_preferences: 
+  http: 
+  flutter_sound:
+  permission_handler:
+  audio_waveforms:
+
 
 dev_dependencies:
   flutter_test:

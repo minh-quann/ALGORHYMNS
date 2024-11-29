@@ -17,7 +17,7 @@ Future<void> main() async{
       :await getApplicationCacheDirectory(),
   );
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+    options: DefaultFirebaseOptions.currentPlatform 
   );
   await initializeDependencies();
   runApp(const MyApp());

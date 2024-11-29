@@ -12,7 +12,20 @@
           "package_name": "com.quann.algorhymns"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1058917940423-pc7es81nko8v0dfpmughh04r0svt0lcs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.quann.algorhymns",
+            "certificate_hash": "7fd1b7506b7f5296ff6cdfd1ff045d969324648d"
+          }
+        },
+        {
+          "client_id": "1058917940423-ce2tsvbthpr692b17mmishk65vn6cuue.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCFG_xHPG6pCn48daABbV6SaSZIqrI2UTE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1058917940423-8jam1bjpo0ltlmtft5nmodfdtlku595g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1058917940423-tlfnifrs1vpjldtouq2a9ljqps23lhfe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.algorhymns"
+              }
+            }
+          ]
         }
       }
     }
