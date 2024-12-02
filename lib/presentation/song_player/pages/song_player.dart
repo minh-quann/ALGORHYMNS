@@ -274,14 +274,15 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
       }
 
       if (state is SongPlayerLoaded) {
-        final double songPosition = context.read<SongPlayerCubit>().songPosition.inSeconds.toDouble();
-        final double songDuration = context.read<SongPlayerCubit>().songDuration.inSeconds.toDouble();
+        // final double songPosition = context.read<SongPlayerCubit>().songPosition.inSeconds.toDouble();
+        // final double songDuration = context.read<SongPlayerCubit>().songDuration.inSeconds.toDouble();
+        final cubit = context.read<SongPlayerCubit>();
         return Column(
           children: [
             Slider(
-              value: songPosition,
+              value: state.songPosition.inSeconds.toDouble(),
               min: 0.0,
-              max: songDuration,
+              max: cubit.songDuration.inSeconds.toDouble(),
               onChanged: (value) {},
             ),
             const SizedBox(height: 20),
@@ -298,22 +299,11 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
             ),
             const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.mic), // Biểu tượng thu âm
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ReCord(),
-                      ),
-                    );
-                  },
-                ),
                 GestureDetector(
                   onTap: () {
-                    context.read<SongPlayerCubit>().playOrPauseSong();
+                    context.read<SongPlayerCubit>().playOrPauseSongAndRecord();
                   },
                   child: Container(
                     height: 60,
@@ -323,18 +313,51 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                       color: AppColors.primary,
                     ),
                     child: Icon(
-                      context.read<SongPlayerCubit>().audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+                      cubit.audioPlayer.playing ? Icons.stop : Icons.play_arrow,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.lyrics),
-                  onPressed: () {
-                    context.read<SongPlayerCubit>().toggleLyrics();
-                  },
-                ),
+                )
               ],
             ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     IconButton(
+            //       icon: const Icon(Icons.mic), // Biểu tượng thu âm
+            //       onPressed: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const ReCord(),
+            //           ),
+            //         );
+            //       },
+            //     ),
+            //     GestureDetector(
+            //       onTap: () {
+            //         context.read<SongPlayerCubit>().playOrPauseSong();
+            //       },
+            //       child: Container(
+            //         height: 60,
+            //         width: 60,
+            //         decoration: const BoxDecoration(
+            //           shape: BoxShape.circle,
+            //           color: AppColors.primary,
+            //         ),
+            //         child: Icon(
+            //           context.read<SongPlayerCubit>().audioPlayer.playing ? Icons.pause : Icons.play_arrow,
+            //         ),
+            //       ),
+            //     ),
+            //     IconButton(
+            //       icon: const Icon(Icons.lyrics),
+            //       onPressed: () {
+            //         context.read<SongPlayerCubit>().toggleLyrics();
+            //       },
+            //     ),
+            //   ],
+            // ),
 
           ],
         );
