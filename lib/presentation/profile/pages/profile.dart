@@ -3,12 +3,14 @@ import 'package:algorhymns/common/widgets/appbar/app_bar_profile.dart';
 import 'package:algorhymns/common/widgets/favorite_button/favorite_button.dart';
 import 'package:algorhymns/core/configs/constants/app_urls.dart';
 import 'package:algorhymns/core/configs/theme/app_colors.dart';
+import 'package:algorhymns/data/models/auth/shared_prefs.dart';
 import 'package:algorhymns/presentation/auth/pages/signin.dart';
 import 'package:algorhymns/presentation/profile/bloc/favorite_songs_cubit.dart';
 import 'package:algorhymns/presentation/profile/bloc/favorite_songs_state.dart';
 import 'package:algorhymns/presentation/profile/bloc/profile_info_cubit.dart';
 import 'package:algorhymns/presentation/profile/bloc/profile_info_state.dart';
 import 'package:algorhymns/presentation/song_player/pages/song_player.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -78,9 +80,12 @@ class ProfilePage extends StatelessWidget {
 }
 Future<bool> _logout() async {
   try {
-    return true; 
+    await SharedPrefs.clearUserData();
+    await FirebaseAuth.instance.signOut();
+
+    return true;
   } catch (e) {
-    return false; 
+    return false;
   }
 }
 
