@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:algorhymns/presentation/song_player/bloc/song_player_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -56,6 +56,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> loadSong(String url) async {
     try {
       await audioPlayer.setUrl(url);
+      print(audioPlayer.playerState.processingState);
       updateState();
     } catch (e) {
       emit(SongPlayerFailure());
@@ -64,20 +65,32 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
   void playOrPauseSongAndRecord() async {
     if (audioPlayer.playing) {
-      await stopRecording();
       await audioPlayer.pause();
-      emit(SongPlayerPaused(
-        songPosition: audioPlayer.position,
-        songDuration: audioPlayer.duration!,
-      ));
+      if (isRecording) {
+        await pauseRecording();
+      }
     } else {
+      if (audioPlayer.processingState == ProcessingState.ready) {
+        await startRecording();
+      }
       await audioPlayer.play();
-      await startRecording();
-      emit(SongPlayerPlaying(
-          songPosition: audioPlayer.position,
-          songDuration: audioPlayer.duration!));
+
+      if (!recorder.isRecording) {
+        if (recorder.isPaused) {
+          await resumeRecording();
+        }
+      }
     }
+
+    emit(SongPlayerLoaded(
+        songPosition: songPosition,
+        isRecording: isRecording,
+        elapsedRecordingTime: elapsedRecordingTime,
+        showCancelSaveButtons: !audioPlayer.playing,
+    ));
   }
+
+
 
   Future<void> startRecording() async {
     if (!isRecording) {
@@ -87,15 +100,109 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         codec: Codec.pcm16WAV,
       );
       isRecording = true;
-      emit(RecordingStarted());
+      updateState();
     }
   }
 
   Future<void> stopRecording() async {
-    if (isRecording) {
-      await recorder.stopRecorder();
+    if (recorder.isRecording) {
+      try {
+        final filePath = await recorder.stopRecorder();
+        print("Recorder stopped. File path: $filePath");
+        if (filePath != null) {
+          _filePath = _filePath;
+        }
+      } catch (e) {
+        print("Error stopping recorder: $e");
+      }
       isRecording = false;
-      emit(RecordingStopped());
+    }
+  }
+
+  Future<void> pauseRecording() async {
+    if (recorder.isRecording) {
+      await recorder.pauseRecorder();
+      isRecording = false;
+      // emit(SongPlayerLoaded(
+      //     songPosition: songPosition,
+      //     isRecording: false,
+      //     elapsedRecordingTime: elapsedRecordingTime,
+      //     showCancelSaveButtons: true,
+      // ));
+    }
+  }
+
+  Future<void> resumeRecording() async {
+    if (recorder.isPaused) {
+      await recorder.resumeRecorder();
+      isRecording = true;
+    }
+  }
+
+  void saveRecording() async {
+    if (isRecording) {
+      await stopRecording();
+    }
+    // await Future.delayed(Duration(seconds: 1));
+
+    final file = File(_filePath);
+    if (await file.exists()) {
+      print("File successfully saved at $_filePath");
+    } else {
+      print("File does not exist at $_filePath. Save failed.");
+    }
+
+    // if (_filePath.isNotEmpty) {
+    //   await _uploadRecordingToServer(_filePath);
+    // }
+
+    emit(SongPlayerLoaded(
+        songPosition: songPosition,
+        isRecording: false,
+        elapsedRecordingTime: elapsedRecordingTime,
+        showCancelSaveButtons: false,
+    ));
+  }
+
+  void cancelRecording() async {
+    if (recorder.isRecording) {
+      await stopRecording();
+    }
+
+    if (_filePath.isNotEmpty) {
+      final file = File(_filePath);
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+    }
+
+    emit(SongPlayerLoaded(
+        songPosition: songPosition,
+        isRecording: false,
+        elapsedRecordingTime: elapsedRecordingTime,
+        showCancelSaveButtons: false,
+    ));
+  }
+
+  Future<void> _uploadRecordingToServer(String filePath) async {
+    // trên thiết bị android emulator
+    final uri = Uri.parse("http://10.0.2.2:5000/analyze_audio");
+    // trên thiết bị thật
+    // final uri = Uri.parse("http://192.168.1.12:5000/analyze_audio");
+    final file = File(filePath);
+
+    if (file.existsSync()) {
+      final request = http.MultipartRequest('POST', uri)
+        ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        print("File uploaded successfully!");
+      } else {
+        print("Failed to upload file.");
+      }
+    } else {
+      print("Recording file not found.");
     }
   }
 

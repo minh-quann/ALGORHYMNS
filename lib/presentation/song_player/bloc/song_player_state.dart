@@ -8,11 +8,13 @@ class SongPlayerLoaded extends SongPlayerState {
   final Duration songPosition;
   final bool isRecording;
   final int elapsedRecordingTime;
+  final bool showCancelSaveButtons;
 
   SongPlayerLoaded({
     required this.songPosition,
     required this.isRecording,
     required this.elapsedRecordingTime,
+    this.showCancelSaveButtons = false,
   });
 }
 

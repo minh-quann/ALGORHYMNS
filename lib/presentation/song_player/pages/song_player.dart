@@ -5,7 +5,6 @@ import 'package:algorhymns/core/configs/theme/app_colors.dart';
 import 'package:algorhymns/domain/entities/song/song.dart';
 import 'package:algorhymns/presentation/song_player/bloc/lyrics_cubit.dart';
 import 'package:algorhymns/presentation/song_player/bloc/lyrics_state.dart';
-import 'package:algorhymns/presentation/song_player/bloc/record.dart';
 import 'package:algorhymns/presentation/song_player/bloc/song_player_cubit.dart';
 import 'package:algorhymns/presentation/song_player/bloc/song_player_state.dart';
 import 'package:flutter/material.dart';
@@ -269,18 +268,19 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
   Widget _songPlayer(BuildContext context) {
   return BlocBuilder<SongPlayerCubit, SongPlayerState>(
     builder: (context, state) {
+      final cubit = context.read<SongPlayerCubit>();
+
       if (state is SongPlayerLoading) {
         return const CircularProgressIndicator();
       }
 
-      if (state is SongPlayerLoaded) {
-        // final double songPosition = context.read<SongPlayerCubit>().songPosition.inSeconds.toDouble();
-        // final double songDuration = context.read<SongPlayerCubit>().songDuration.inSeconds.toDouble();
-        final cubit = context.read<SongPlayerCubit>();
+      if (state is SongPlayerLoaded || state is SongPlayerPlaying || state is SongPlayerPaused) {
+        final isPaused = state is SongPlayerLoaded && state.showCancelSaveButtons;
+
         return Column(
           children: [
             Slider(
-              value: state.songPosition.inSeconds.toDouble(),
+              value: cubit.songPosition.inSeconds.toDouble(),
               min: 0.0,
               max: cubit.songDuration.inSeconds.toDouble(),
               onChanged: (value) {},
@@ -301,64 +301,59 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                if (isPaused)
+                  GestureDetector(
+                    onTap: cubit.cancelRecording,
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.redAccent,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                if (isPaused)
+                  const SizedBox(width: 20),
                 GestureDetector(
-                  onTap: () {
-                    context.read<SongPlayerCubit>().playOrPauseSongAndRecord();
-                  },
+                  onTap: cubit.playOrPauseSongAndRecord,
                   child: Container(
-                    height: 60,
-                    width: 60,
+                    height: 50,
+                    width: 50,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppColors.primary,
                     ),
-                    child: Icon(
-                      cubit.audioPlayer.playing ? Icons.stop : Icons.play_arrow,
+                    child:  Icon(
+                      cubit.audioPlayer.playing ? Icons.pause : Icons.play_arrow,
                       color: Colors.white,
                     ),
                   ),
-                )
+                ),
+                if (isPaused)
+                  const SizedBox(width: 20),
+                if (isPaused)
+                  GestureDetector(
+                    onTap: cubit.saveRecording,
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.green,
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
               ],
             ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     IconButton(
-            //       icon: const Icon(Icons.mic), // Biểu tượng thu âm
-            //       onPressed: () {
-            //         Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => const ReCord(),
-            //           ),
-            //         );
-            //       },
-            //     ),
-            //     GestureDetector(
-            //       onTap: () {
-            //         context.read<SongPlayerCubit>().playOrPauseSong();
-            //       },
-            //       child: Container(
-            //         height: 60,
-            //         width: 60,
-            //         decoration: const BoxDecoration(
-            //           shape: BoxShape.circle,
-            //           color: AppColors.primary,
-            //         ),
-            //         child: Icon(
-            //           context.read<SongPlayerCubit>().audioPlayer.playing ? Icons.pause : Icons.play_arrow,
-            //         ),
-            //       ),
-            //     ),
-            //     IconButton(
-            //       icon: const Icon(Icons.lyrics),
-            //       onPressed: () {
-            //         context.read<SongPlayerCubit>().toggleLyrics();
-            //       },
-            //     ),
-            //   ],
-            // ),
-
           ],
         );
       }
