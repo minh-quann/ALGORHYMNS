@@ -12,8 +12,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
   FlutterSoundRecorder recorder = FlutterSoundRecorder();
   Timer? syncLyricTimer;
-  Timer? recordingTimer;
-
+  
   Duration songDuration = Duration.zero;
   Duration songPosition = Duration.zero;
 
@@ -23,7 +22,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   String? recordingFilePath;
   String _filePath = "";
 
-  SongPlayerCubit() : super (SongPlayerLoading()) {
+  SongPlayerCubit() : super(SongPlayerLoading()) {
     audioPlayer.positionStream.listen((position) {
       songPosition = position;
       updateState();
@@ -31,7 +30,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
 
     audioPlayer.durationStream.listen((duration) {
       if (songDuration == Duration.zero) {
-        songDuration = duration!;
+        songDuration = duration ?? Duration.zero;
       }
     });
 
@@ -43,6 +42,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (!await Permission.microphone.request().isGranted) {
       throw Exception("Microphone permission denied");
     }
+    recorder.setSubscriptionDuration(Duration(milliseconds: 100)); // Ensure frequent updates
   }
 
   void updateState() {
@@ -56,7 +56,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   Future<void> loadSong(String url) async {
     try {
       await audioPlayer.setUrl(url);
-      print(audioPlayer.playerState.processingState);
       updateState();
     } catch (e) {
       emit(SongPlayerFailure());
@@ -67,40 +66,39 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (audioPlayer.playing) {
       await audioPlayer.pause();
       if (isRecording) {
-        await pauseRecording();
+        await stopRecording();
       }
     } else {
       if (audioPlayer.processingState == ProcessingState.ready) {
         await startRecording();
       }
       await audioPlayer.play();
-
-      if (!recorder.isRecording) {
-        if (recorder.isPaused) {
-          await resumeRecording();
-        }
-      }
     }
 
     emit(SongPlayerLoaded(
-        songPosition: songPosition,
-        isRecording: isRecording,
-        elapsedRecordingTime: elapsedRecordingTime,
-        showCancelSaveButtons: !audioPlayer.playing,
+      songPosition: songPosition,
+      isRecording: isRecording,
+      elapsedRecordingTime: elapsedRecordingTime,
+      showCancelSaveButtons: !audioPlayer.playing,
     ));
   }
-
-
 
   Future<void> startRecording() async {
     if (!isRecording) {
       _filePath = await _getRecordingFilePath();
-      await recorder.startRecorder(
-        toFile: _filePath,
-        codec: Codec.pcm16WAV,
-      );
-      isRecording = true;
-      updateState();
+      try {
+        // Start recording and ensure it doesn't stop
+        await recorder.startRecorder(
+          toFile: _filePath,
+          codec: Codec.pcm16WAV,
+        );
+        isRecording = true;
+        elapsedRecordingTime = 0;
+        // Don't use Timer to track, handle by direct state updates
+        updateState();
+      } catch (e) {
+        print("Error starting recorder: $e");
+      }
     }
   }
 
@@ -110,12 +108,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         final filePath = await recorder.stopRecorder();
         print("Recorder stopped. File path: $filePath");
         if (filePath != null) {
-          _filePath = _filePath;
+          _filePath = filePath;
         }
       } catch (e) {
         print("Error stopping recorder: $e");
       }
       isRecording = false;
+      updateState();
     }
   }
 
@@ -123,12 +122,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (recorder.isRecording) {
       await recorder.pauseRecorder();
       isRecording = false;
-      // emit(SongPlayerLoaded(
-      //     songPosition: songPosition,
-      //     isRecording: false,
-      //     elapsedRecordingTime: elapsedRecordingTime,
-      //     showCancelSaveButtons: true,
-      // ));
+      updateState();
     }
   }
 
@@ -136,6 +130,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (recorder.isPaused) {
       await recorder.resumeRecorder();
       isRecording = true;
+      updateState();
     }
   }
 
@@ -143,27 +138,22 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (isRecording) {
       await stopRecording();
     }
-    // await Future.delayed(Duration(seconds: 1));
 
     final file = File(_filePath);
     if (await file.exists()) {
       print("File successfully saved at $_filePath");
+      // Gửi file ngay sau khi lưu
+      await _uploadRecordingToServer(_filePath); // Gửi file lên server
     } else {
       print("File does not exist at $_filePath. Save failed.");
     }
 
-    if (_filePath.isNotEmpty) {
-      await _uploadRecordingToServer(_filePath);
-    }
-
     emit(SongPlayerLoaded(
-        songPosition: songPosition,
-        isRecording: false,
-        elapsedRecordingTime: elapsedRecordingTime,
-        showCancelSaveButtons: false,
+      songPosition: songPosition,
+      isRecording: false,
+      elapsedRecordingTime: elapsedRecordingTime,
+      showCancelSaveButtons: false,
     ));
-
-    recorder.closeRecorder();
   }
 
   void cancelRecording() async {
@@ -179,31 +169,30 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
 
     emit(SongPlayerLoaded(
-        songPosition: songPosition,
-        isRecording: false,
-        elapsedRecordingTime: elapsedRecordingTime,
-        showCancelSaveButtons: false,
+      songPosition: songPosition,
+      isRecording: false,
+      elapsedRecordingTime: elapsedRecordingTime,
+      showCancelSaveButtons: false,
     ));
-
-    recorder.closeRecorder();
   }
 
   Future<void> _uploadRecordingToServer(String filePath) async {
-    // trên thiết bị android emulator
-    final uri = Uri.parse("http://10.0.2.2:5000/analyze_audio");
-    // trên thiết bị thật
-    // final uri = Uri.parse("http://192.168.1.12:5000/analyze_audio");
+    final uri = Uri.parse("http://10.17.53.237:5000/analyze_audio"); // Đảm bảo địa chỉ server chính xác
     final file = File(filePath);
 
     if (file.existsSync()) {
-      final request = http.MultipartRequest('POST', uri)
-        ..files.add(await http.MultipartFile.fromPath('file', filePath));
-
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        print("File uploaded successfully!");
-      } else {
-        print("Failed to upload file.");
+      try {
+        final request = http.MultipartRequest('POST', uri)
+          ..files.add(await http.MultipartFile.fromPath('file', filePath));
+        final response = await request.send();
+        if (response.statusCode == 200) {
+          print("File uploaded successfully!");
+          // Xử lý phản hồi nếu cần
+        } else {
+          print("Failed to upload file with status code: ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Error while uploading file: $e");
       }
     } else {
       print("Recording file not found.");
@@ -211,11 +200,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<String> _getRecordingFilePath() async {
-    final directory = await getExternalStorageDirectory();
+    final directory = await getExternalStorageDirectory();  // Đảm bảo đây là nơi bạn có quyền ghi
     final path = '${directory!.path}/record';
     final dir = Directory(path);
     if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
+      dir.createSync(recursive: true);  // Tạo thư mục nếu chưa có
     }
     return '$path/recording_${DateTime.now().millisecondsSinceEpoch}.wav';
   }
@@ -225,7 +214,6 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     recorder.closeRecorder();
     audioPlayer.dispose();
     syncLyricTimer?.cancel();
-    recordingTimer?.cancel();
     return super.close();
   }
 
@@ -233,5 +221,4 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     showLyrics = !showLyrics;
     updateState();
   }
-
 }

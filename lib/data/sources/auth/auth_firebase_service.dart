@@ -8,6 +8,7 @@ import 'package:algorhymns/domain/entities/auth/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 
 abstract class AuthFirebaseService {
@@ -15,58 +16,63 @@ abstract class AuthFirebaseService {
   Future<Either> signin(SigninUserReq signinUserReq);
   Future<Either<String, void>> resetPassword(ResetPasswordReq req);
   Future<Either> getUser();
+  Future<Either<String, UserModel>> signInWithGoogle();
 }
 
-class AuthFirebaseServiceImpl extends AuthFirebaseService{
-   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-//   @override
-//   Future<Either> signin(SigninUserReq signinUserReq) async{
-//     try{
-//      await FirebaseAuth.instance.signInWithEmailAndPassword(
-//         email: signinUserReq.email, 
-//         password: signinUserReq.password
-//         );
-//         return const Right('Đăng nhập hoàn tất');
+class AuthFirebaseServiceImpl extends AuthFirebaseService {
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-//      } on FirebaseAuthException catch(e){
-//       String message = '';
-//       if(e.code == 'invalid-email'){
-//         message = 'Không có người dùng cho email này';
-//       }else if (e.code == 'invalid-credential'){
-//         message = 'Mật khẩu không đúng';
-//       }
+  Future<Either<String, UserModel>> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return const Left('Đăng nhập Google bị hủy.');
+      }
 
-//       return Left(message);
-//      }
-//   }
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-// @override
-//   Future<Either> signup(CreateUserReq createUserReq) async {
-//      try{
-//       var data = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-//         email: createUserReq.email, 
-//         password: createUserReq.password
-//         );
-//          FirebaseFirestore.instance.collection('Users').doc(data.user?.uid)
-//          .set(
-//           {
-//             'name' : createUserReq.fullName,
-//             'email' : data.user?.email
-//           }
-//         );
-//         return const Right('Đăng ký hoàn tất');
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-//      } on FirebaseAuthException catch(e){
-//       String message = '';
-//       if(e.code == 'weak-password'){
-//         message = 'Mật khẩu quá yếu, xin hãy đặt một mật khẩu mạnh hơn!';
-//       }else if (e.code == 'email-already-in-use'){
-//         message = 'Email này đã được đăng ký trước đó';
-//       }
+      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final User? firebaseUser = userCredential.user;
 
-//       return Left(message);
-//      }
-//   }
+      if (firebaseUser == null) {
+        return const Left('Đăng nhập không thành công.');
+      }
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(firebaseUser.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        final userModel = UserModel(
+          fullName: googleUser.displayName ?? 'Người dùng Google',
+          email: googleUser.email,
+          imageURL: googleUser.photoUrl ?? AppURLs.defaultImage,
+        );
+
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(firebaseUser.uid)
+            .set(userModel.toJson());
+
+        await SharedPrefs.saveUserData(userModel);
+        return Right(userModel);
+      }
+
+      final userModel = UserModel.fromJson(userDoc.data()!);
+      await SharedPrefs.saveUserData(userModel);
+      return Right(userModel);
+    } catch (e) {
+      return Left('Đăng nhập Google thất bại: ${e.toString()}');
+    }
+  }
+
 
 @override
 Future<Either<String, UserModel>> signin(SigninUserReq signinUserReq) async {

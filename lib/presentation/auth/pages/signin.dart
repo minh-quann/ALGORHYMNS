@@ -21,7 +21,7 @@ class SigninPage extends StatefulWidget {
 class _SigninPageState extends State<SigninPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
-  bool _isObscured = true; 
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +53,8 @@ class _SigninPageState extends State<SigninPage> {
               onPressed: () async {
                 var result = await sl<SigninUseCase>().call(
                   params: SigninUserReq(
-                    email: _email.text.toString(),
-                    password: _password.text.toString(),
+                    email: _email.text.trim(),
+                    password: _password.text.trim(),
                   ),
                 );
                 result.fold(
@@ -75,6 +75,8 @@ class _SigninPageState extends State<SigninPage> {
               },
               title: 'Đăng Nhập',
             ),
+            const SizedBox(height: 20),
+            _googleSignInButton(context), // Thêm nút đăng nhập Google
           ],
         ),
       ),
@@ -102,6 +104,7 @@ class _SigninPageState extends State<SigninPage> {
       ),
     );
   }
+
   Widget _passwordField(BuildContext context) {
     return TextField(
       controller: _password,
@@ -110,7 +113,7 @@ class _SigninPageState extends State<SigninPage> {
         hintText: 'Password',
         suffixIcon: IconButton(
           icon: Icon(
-            _isObscured ? Icons.visibility : Icons.visibility_off, 
+            _isObscured ? Icons.visibility : Icons.visibility_off,
           ),
           onPressed: () {
             setState(() {
@@ -120,6 +123,61 @@ class _SigninPageState extends State<SigninPage> {
         ),
       ).applyDefaults(
         Theme.of(context).inputDecorationTheme,
+      ),
+    );
+  }
+
+  Widget _googleSignInButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        var result = await sl<SigninUseCase>().signInWithGoogle();
+        result.fold(
+          (l) {
+            var snackbar = SnackBar(content: Text(l));
+            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          },
+          (r) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => const HomePage(),
+              ),
+              (route) => false,
+            );
+          },
+        );
+      },
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/icons/google_logo.svg',
+              height: 24,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Đăng nhập bằng Google',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

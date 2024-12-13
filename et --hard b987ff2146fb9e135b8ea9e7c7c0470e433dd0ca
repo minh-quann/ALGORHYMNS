@@ -1,0 +1,41 @@
+[33mcommit 9c6d12bed9f2fd33543578e54b7285d4af8023fc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Tran Quang Tai <trantai13502@gmail.com>
+Date:   Mon Dec 2 16:34:11 2024 +0700
+
+    update Record feature
+
+[33mcommit b987ff2146fb9e135b8ea9e7c7c0470e433dd0ca[m
+Author: minh-quann <quannguyen19092003@gmail.com>
+Date:   Fri Nov 29 17:10:35 2024 +0700
+
+    Create mic record
+
+[33mcommit cb5cf7dcbf0a93289f7ad2c99e3740d5b000d8e8[m
+Author: Tran Quang Tai <trantai13502@gmail.com>
+Date:   Wed Nov 20 22:18:19 2024 +0700
+
+    Add synchronized lyrics display based on song playback time
+
+[33mcommit 28495f85dceccc0f5403c2e0f0e8ed4c4af43ef1[m
+Author: minh-quann <quannguyen19092003@gmail.com>
+Date:   Tue Oct 8 06:21:47 2024 +0700
+
+    Update more function
+
+[33mcommit 86ddb3a0fa3e6be04d9d96761adaad919d12935e[m
+Author: minh-quann <quannguyen19092003@gmail.com>
+Date:   Sat Oct 5 06:30:47 2024 +0700
+
+    UseCases Setup and calling signin/ signup UseCases
+
+[33mcommit dd4e343c08789457775bbed12898c815e37e85e8[m
+Author: minh-quann <quannguyen19092003@gmail.com>
+Date:   Sat Oct 5 03:53:42 2024 +0700
+
+    Firebase setup complete
+
+[33mcommit da9e80ae68bbe18b0551cfec226cc0b018ffc241[m
+Author: minh-quann <quannguyen19092003@gmail.com>
+Date:   Sat Oct 5 01:47:49 2024 +0700
+
+    Choose mode

@@ -1,6 +1,7 @@
 import 'package:algorhymns/data/models/auth/create_user_req.dart';
 import 'package:algorhymns/data/models/auth/reset_password_req.dart';
 import 'package:algorhymns/data/models/auth/signin_user_req.dart';
+import 'package:algorhymns/data/models/auth/user.dart';
 import 'package:algorhymns/data/sources/auth/auth_firebase_service.dart';
 import 'package:algorhymns/domain/repository/auth/auth.dart';
 import 'package:algorhymns/service_locator.dart';
@@ -22,5 +23,9 @@ Future<Either<String, void>> resetPassword(ResetPasswordReq req) async {
  @override
   Future<Either> getUser() async {
     return await sl<AuthFirebaseService>().getUser();
+  }
+  @override
+  Future<Either<String, UserModel>> signInWithGoogle() async {
+    return await sl<AuthFirebaseService>().signInWithGoogle();
   }
 }

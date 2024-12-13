@@ -5,7 +5,7 @@ import 'package:algorhymns/presentation/home/pages/home.dart';
 import 'package:algorhymns/presentation/splash/pages/splash.dart';
 import 'package:algorhymns/service_locator.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; 
 import 'package:flutter/material.dart';
 import 'package:algorhymns/core/configs/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
