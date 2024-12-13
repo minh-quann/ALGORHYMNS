@@ -47,7 +47,7 @@ class GetStartedPage extends StatelessWidget{
                   ),
                     const Spacer(),
                     const Text(
-                      'Học và luyện hát ngay hôm nay',
+                      'Sing better - Shine brighter',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,

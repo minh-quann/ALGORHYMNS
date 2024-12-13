@@ -152,9 +152,9 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
       print("File does not exist at $_filePath. Save failed.");
     }
 
-    // if (_filePath.isNotEmpty) {
-    //   await _uploadRecordingToServer(_filePath);
-    // }
+    if (_filePath.isNotEmpty) {
+      await _uploadRecordingToServer(_filePath);
+    }
 
     emit(SongPlayerLoaded(
         songPosition: songPosition,
@@ -162,6 +162,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         elapsedRecordingTime: elapsedRecordingTime,
         showCancelSaveButtons: false,
     ));
+
+    recorder.closeRecorder();
   }
 
   void cancelRecording() async {
@@ -182,6 +184,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         elapsedRecordingTime: elapsedRecordingTime,
         showCancelSaveButtons: false,
     ));
+
+    recorder.closeRecorder();
   }
 
   Future<void> _uploadRecordingToServer(String filePath) async {
