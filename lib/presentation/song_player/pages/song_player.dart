@@ -3,13 +3,14 @@ import 'package:algorhymns/common/widgets/favorite_button/favorite_button.dart';
 import 'package:algorhymns/core/configs/constants/app_urls.dart';
 import 'package:algorhymns/core/configs/theme/app_colors.dart';
 import 'package:algorhymns/domain/entities/song/song.dart';
+import 'package:algorhymns/presentation/song_player/bloc/get_result.dart';
 import 'package:algorhymns/presentation/song_player/bloc/lyrics_cubit.dart';
 import 'package:algorhymns/presentation/song_player/bloc/lyrics_state.dart';
 import 'package:algorhymns/presentation/song_player/bloc/song_player_cubit.dart';
 import 'package:algorhymns/presentation/song_player/bloc/song_player_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:algorhymns/common/helpers/is_dark_mode.dart';
 
 class SongPlayerPage extends StatefulWidget {
   final SongEntity songEntity;
@@ -20,6 +21,7 @@ class SongPlayerPage extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _SongPlayerPageState createState() => _SongPlayerPageState();
 }
 
@@ -176,7 +178,7 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Colors.black.withOpacity(0.5),
+              color: const Color.fromARGB(255, 73, 73, 73).withOpacity(0.5),
             ),
             child: Center(
               child: Column(
@@ -265,115 +267,136 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
     );
   }
 
-  Widget _songPlayer(BuildContext context) {
-    return BlocBuilder<SongPlayerCubit, SongPlayerState>(
-      builder: (context, state) {
-        final cubit = context.read<SongPlayerCubit>();
+ Widget _songPlayer(BuildContext context) {
+  return BlocBuilder<SongPlayerCubit, SongPlayerState>(
+    builder: (context, state) {
+      final cubit = context.read<SongPlayerCubit>();
 
-        if (state is SongPlayerLoading) {
-          return const CircularProgressIndicator();
-        }
+      if (state is SongPlayerLoading) {
+        return const CircularProgressIndicator();
+      }
 
-        if (state is SongPlayerLoaded ||
-            state is SongPlayerPlaying ||
-            state is SongPlayerPaused) {
-          final isPaused =
-              state is SongPlayerLoaded && state.showCancelSaveButtons;
+      if (state is SongPlayerLoaded ||
+          state is SongPlayerPlaying ||
+          state is SongPlayerPaused) {
+        final isPaused =
+            state is SongPlayerLoaded && state.showCancelSaveButtons;
 
-          return Column(
-            children: [
-              Slider(
-                value: cubit.songPosition.inSeconds.toDouble(),
-                min: 0.0,
-                max: cubit.songDuration.inSeconds.toDouble(),
-                onChanged: (value) {},
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    formatDuration(
-                        context.read<SongPlayerCubit>().songPosition),
+        return Column(
+          children: [
+            Slider(
+              value: cubit.songPosition.inSeconds.toDouble(),
+              min: 0.0,
+              max: cubit.songDuration.inSeconds.toDouble(),
+              onChanged: (value) {},
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formatDuration(
+                      context.read<SongPlayerCubit>().songPosition),
+                ),
+                Text(
+                  formatDuration(
+                      context.read<SongPlayerCubit>().songDuration),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (isPaused)
+                        GestureDetector(
+                          onTap: cubit.cancelRecording,
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.redAccent,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      if (isPaused) const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: cubit.playOrPauseSongAndRecord,
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.primary,
+                          ),
+                          child: Icon(
+                            cubit.audioPlayer.playing
+                                ? Icons.pause
+                                : Icons.play_arrow,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      if (isPaused) const SizedBox(width: 20),
+                      if (isPaused)
+                        GestureDetector(
+                          onTap: () {
+                            cubit.saveRecording();  
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ResultsPage(), 
+                              ),
+                            );
+                          },
+                          child: Container(
+                            height: 50,
+                            width: 50,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.green,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  Text(
-                    formatDuration(
-                        context.read<SongPlayerCubit>().songDuration),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (isPaused)
-                    GestureDetector(
-                      onTap: cubit.cancelRecording,
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.redAccent,
-                        ),
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  if (isPaused) const SizedBox(width: 20),
-                  GestureDetector(
-                    onTap: cubit.playOrPauseSongAndRecord,
-                    child: Container(
-                      height: 50,
-                      width: 50,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.primary,
-                      ),
-                      child: Icon(
-                        cubit.audioPlayer.playing
-                            ? Icons.pause
-                            : Icons.play_arrow,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  if (isPaused) const SizedBox(width: 20),
-                  if (isPaused)
-                    GestureDetector(
-                      onTap: cubit.saveRecording,
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.green,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(width: 20),
-                  IconButton(
+                ),
+          
+                Positioned(
+                  right: 20,
+                  child: IconButton(
                     onPressed: () {
                       cubit.toggleLyrics();
                     },
                     icon: const Icon(Icons.lyrics),
+                    color: context.isDarkMode ? Colors.white : Colors.black,
+                    iconSize: 30,
                   ),
-                ],
-              ),
-            ],
-          );
-        }
+                ),
+              ],
+            ),
+          ],
+        );
+      }
 
-        return Container();
-      },
-    );
-  }
+      return Container();
+    },
+  );
+}
+
 
   String formatDuration(Duration duration) {
     final minutes = duration.inMinutes.remainder(60);

@@ -31,7 +31,6 @@ dependencies:
   permission_handler:
   audio_waveforms:
   image_picker:
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

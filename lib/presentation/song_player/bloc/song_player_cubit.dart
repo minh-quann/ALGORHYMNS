@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:algorhymns/presentation/song_player/bloc/get_result.dart';
 import 'package:http/http.dart' as http;
 import 'package:algorhymns/presentation/song_player/bloc/song_player_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/material.dart'; // Thêm để sử dụng Navigator
 
 class SongPlayerCubit extends Cubit<SongPlayerState> {
   AudioPlayer audioPlayer = AudioPlayer();
@@ -42,7 +44,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     if (!await Permission.microphone.request().isGranted) {
       throw Exception("Microphone permission denied");
     }
-    recorder.setSubscriptionDuration(Duration(milliseconds: 100)); // Ensure frequent updates
+    recorder.setSubscriptionDuration(const Duration(milliseconds: 100)); // Ensure frequent updates
   }
 
   void updateState() {
@@ -94,8 +96,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         );
         isRecording = true;
         elapsedRecordingTime = 0;
-        // Don't use Timer to track, handle by direct state updates
-        updateState();
+        updateState();  // Ensure state is updated immediately after starting recording
       } catch (e) {
         print("Error starting recorder: $e");
       }
@@ -142,8 +143,8 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     final file = File(_filePath);
     if (await file.exists()) {
       print("File successfully saved at $_filePath");
-      // Gửi file ngay sau khi lưu
-      await _uploadRecordingToServer(_filePath); // Gửi file lên server
+      // Send the file immediately after saving
+      await _uploadRecordingToServer(_filePath); // Upload file to server
     } else {
       print("File does not exist at $_filePath. Save failed.");
     }
@@ -177,7 +178,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<void> _uploadRecordingToServer(String filePath) async {
-    final uri = Uri.parse("http://10.17.53.237:5000/analyze_audio"); // Đảm bảo địa chỉ server chính xác
+    final uri = Uri.parse("http://10.0.2.2:5000/analyze_audio");
     final file = File(filePath);
 
     if (file.existsSync()) {
@@ -187,7 +188,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
         final response = await request.send();
         if (response.statusCode == 200) {
           print("File uploaded successfully!");
-          // Xử lý phản hồi nếu cần
+          // Handle the server's response if necessary
         } else {
           print("Failed to upload file with status code: ${response.statusCode}");
         }
@@ -200,11 +201,11 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   }
 
   Future<String> _getRecordingFilePath() async {
-    final directory = await getExternalStorageDirectory();  // Đảm bảo đây là nơi bạn có quyền ghi
+    final directory = await getExternalStorageDirectory();
     final path = '${directory!.path}/record';
     final dir = Directory(path);
     if (!dir.existsSync()) {
-      dir.createSync(recursive: true);  // Tạo thư mục nếu chưa có
+      dir.createSync(recursive: true);
     }
     return '$path/recording_${DateTime.now().millisecondsSinceEpoch}.wav';
   }
@@ -220,5 +221,13 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   void toggleLyrics() {
     showLyrics = !showLyrics;
     updateState();
+  }
+
+  // Thêm phương thức để mở trang kết quả
+  void navigateToResultsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ResultsPage()), // Đảm bảo bạn đã import đúng ResultsPage
+    );
   }
 }

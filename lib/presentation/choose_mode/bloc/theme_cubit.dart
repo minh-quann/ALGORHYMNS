@@ -21,7 +21,6 @@ class ThemeCubit extends HydratedCubit<ThemeMode> {
 
   @override
   Map<String, dynamic>? toJson(ThemeMode state) {
-    // Chuyển đổi từ ThemeMode sang JSON
-    return {'themeMode': state.toString().split('.').last}; // trả về 'light' hoặc 'dark' hoặc 'system'
+    return {'themeMode': state.toString().split('.').last};
   }
 }

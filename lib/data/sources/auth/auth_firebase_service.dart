@@ -23,6 +23,7 @@ class AuthFirebaseServiceImpl extends AuthFirebaseService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
+  @override
   Future<Either<String, UserModel>> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();

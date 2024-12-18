@@ -7,7 +7,8 @@ import 'package:algorhymns/presentation/auth/pages/signup_or_signin.dart';
 import 'package:algorhymns/presentation/choose_mode/bloc/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 class ChooseModePage extends StatelessWidget {
   const ChooseModePage({super.key});
 
@@ -19,15 +20,13 @@ class ChooseModePage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
               vertical: 40,
-              horizontal: 40
+              horizontal: 40,
             ),
             decoration: const BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.fill,
-                image: AssetImage(
-                  AppImages.chooseModeBG,
-                )
-              )
+                image: AssetImage(AppImages.chooseModeBG),
+              ),
             ),
           ),
           Container(
@@ -36,7 +35,7 @@ class ChooseModePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 40,
-              horizontal: 40
+              horizontal: 40,
             ),
             child: Column(
               children: [
@@ -50,95 +49,38 @@ class ChooseModePage extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    fontSize: 18
+                    fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 40),
                 BlocBuilder<ThemeCubit, ThemeMode>(
                   builder: (context, themeMode) {
                     return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                context.read<ThemeCubit>().updateTheme(ThemeMode.dark);
-                              },
-                              child: ClipOval(
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      color: themeMode == ThemeMode.dark 
-                                          ? const Color(0xff30393C).withOpacity(0.8) // màu nổi bật khi được chọn
-                                          : const Color(0xff30393C).withOpacity(0.5),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: SvgPicture.asset(
-                                      AppVectors.moon,
-                                      fit: BoxFit.none,
-                                      color: themeMode == ThemeMode.dark ? Colors.yellow : Colors.grey, // Đổi màu biểu tượng
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Text(
-                              'Dark Mode',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 17,
-                                color: themeMode == ThemeMode.dark 
-                                    ? Colors.white 
-                                    : AppColors.grey,
-                              ),
-                            )
-                          ],
+                        _buildThemeOption(
+                          context,
+                          mode: ThemeMode.dark,
+                          icon: AppVectors.moon,
+                          activeColor: const Color(0xff30393C),
+                          text: 'Dark',
+                          themeMode: themeMode,
                         ),
-                        const SizedBox(width: 40),
-                        Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                context.read<ThemeCubit>().updateTheme(ThemeMode.light);
-                              },
-                              child: ClipOval(
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      color: themeMode == ThemeMode.light 
-                                          ? const Color(0xfffdd835).withOpacity(0.8) 
-                                          : const Color(0xff30393C).withOpacity(0.5),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: SvgPicture.asset(
-                                      AppVectors.sun,
-                                      fit: BoxFit.none,
-                                      color: themeMode == ThemeMode.light ? Colors.orange : Colors.grey, // Đổi màu biểu tượng
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Text(
-                              'Light Mode',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 17,
-                                color: themeMode == ThemeMode.light 
-                                    ? Colors.white 
-                                    : AppColors.grey,
-                              ),
-                            )
-                          ],
+                        _buildThemeOption(
+                          context,
+                          mode: ThemeMode.light,
+                          icon: AppVectors.sun,
+                          activeColor: const Color(0xfffdd835),
+                          text: 'Light',
+                          themeMode: themeMode,
+                        ),
+                        _buildThemeOption(
+                          context,
+                          mode: ThemeMode.system,
+                          icon: AppVectors.system, 
+                          activeColor: const Color(0xff30393C),
+                          text: 'System',
+                          themeMode: themeMode,
                         ),
                       ],
                     );
@@ -150,17 +92,65 @@ class ChooseModePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (BuildContext context) => const SignupOrSigninPage(),
+                        builder: (BuildContext context) =>
+                            const SignupOrSigninPage(),
                       ),
                     );
                   },
                   title: 'Tiếp Tục',
-                )
+                ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context, {
+    required ThemeMode mode,
+    required String icon,
+    required Color activeColor,
+    required String text,
+    required ThemeMode themeMode,
+  }) {
+    final isActive = themeMode == mode;
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => context.read<ThemeCubit>().updateTheme(mode),
+          child: ClipOval(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? activeColor.withOpacity(0.8)
+                      : const Color(0xff30393C).withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  icon,
+                  fit: BoxFit.none,
+                  color: isActive ? Colors.orange : Colors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Text(
+          text,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 17,
+            color: isActive ? Colors.white : AppColors.grey,
+          ),
+        ),
+      ],
     );
   }
 }
