@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:algorhymns/common/helpers/is_dark_mode.dart';
 import 'package:algorhymns/common/widgets/appbar/app_bar_profile.dart';
 import 'package:algorhymns/common/widgets/favorite_button/favorite_button.dart';

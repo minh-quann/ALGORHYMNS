@@ -231,7 +231,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
   void navigateToResultsPage(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ResultsPage()), // Đảm bảo bạn đã import đúng ResultsPage
+      MaterialPageRoute(builder: (context) => const ResultsPage()), 
     );
   }
 }

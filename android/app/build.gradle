@@ -24,8 +24,8 @@ android {
 
     defaultConfig {
         applicationId = "com.quann.algorhymns"
-        minSdk = 24
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 25
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

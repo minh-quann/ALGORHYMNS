@@ -155,86 +155,107 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
       ),
     );
   }
+Widget _lyricsDisplay(BuildContext context) {
+  return BlocBuilder<SongLyricsCubit, SongLyricsState>(
+    builder: (context, state) {
+      if (state is SongLyricsLoading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (state is SongLyricsLoaded) {
+        final lyrics = state.lyricsText;
+        int currentIndex = highlightedIndex;
+        int startIndex = (currentIndex - 5 >= 0) ? currentIndex - 5 : 0;
+        int endIndex = (currentIndex + 5 < lyrics.length) ? currentIndex + 5 : lyrics.length - 1;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToCenter();
+        });
 
-  Widget _lyricsDisplay(BuildContext context) {
-    return BlocBuilder<SongLyricsCubit, SongLyricsState> (
-      builder: (context, state) {
-        if (state is SongLyricsLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (state is SongLyricsLoaded) {
-          final lyrics = state.lyricsText;
-
-          int currentIndex = highlightedIndex;
-          int nextIndex = currentIndex + 1;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            scrollToCenter();
-          });
-
-          return Container(
-            height: MediaQuery.of(context).size.height / 2,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: const Color.fromARGB(255, 73, 73, 73).withOpacity(0.5),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (currentIndex < lyrics.length)
-                    AnimatedOpacity(
-                      opacity: 1.0,
-                      duration: const Duration(milliseconds: 300),
+        return Container(
+          height: MediaQuery.of(context).size.height / 2,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: const Color.fromARGB(255, 73, 73, 73).withOpacity(0.5),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (int i = startIndex; i < currentIndex; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0), 
                       child: Text(
-                        lyrics[currentIndex]["line"],
+                        lyrics[i]["line"],
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.yellow,
-                          fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          fontSize: i < currentIndex - 2 ? 14 : 17, 
+                          color: i < currentIndex - 2 
+                              ? const Color.fromARGB(106, 255, 255, 255) 
+                              : const Color.fromARGB(255, 255, 255, 255),  
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                  const SizedBox(height: 8,),
-                  if (nextIndex < lyrics.length)
-                    Text(
-                      lyrics[nextIndex]["line"],
+                if (currentIndex < lyrics.length)
+                  AnimatedOpacity(
+                    opacity: 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      lyrics[currentIndex]["line"],
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        color: Colors.yellow,
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                ],
-              ),
+                    ),
+                  ),
+                const SizedBox(height: 8),
+                for (int i = currentIndex + 1; i <= endIndex; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0), 
+                      child: Text(
+                        lyrics[i]["line"],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: i >= endIndex - 2 ? 14 : 17,  
+                          color: i >= endIndex - 2
+                              ? const Color.fromARGB(103, 255, 255, 255)  
+                              : const Color.fromARGB(255, 255, 255, 255), 
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+              ],
             ),
-          );
-        } else if (state is SongLyricsFailure) {
-          return const Text("Error loading lyrics");
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+          ),
+        );
+      } else if (state is SongLyricsFailure) {
+        return const Text("Error loading lyrics");
+      } else {
+        return const SizedBox.shrink();
+      }
+    },
+  );
+}
+
+
+
+void scrollToCenter() {
+  if (_scrollController.hasClients) {
+    const lineHeight = 40.0;
+    final containerHeight = MediaQuery.of(context).size.height / 2;
+    final scrollPosition = highlightedIndex * lineHeight - (containerHeight / 2) + (lineHeight / 2);
+
+    _scrollController.animateTo(
+      scrollPosition,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
+}
 
-  void scrollToCenter() {
-    if (_scrollController.hasClients) {
-      const lineHeight = 40.0;
-      final containerHeight = MediaQuery.of(context).size.height / 2;
-      final scrollPosition = highlightedIndex * lineHeight - (containerHeight / 2) + (lineHeight / 2);
-
-      _scrollController.animateTo(
-        scrollPosition,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
 
   Widget _songDetail() {
     return Row(
