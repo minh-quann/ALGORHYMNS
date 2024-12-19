@@ -135,7 +135,7 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     }
   }
 
-  void saveRecording() async {
+  void saveRecording({required String artist, required String title}) async {
     if (isRecording) {
       await stopRecording();
     }
@@ -143,8 +143,9 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     final file = File(_filePath);
     if (await file.exists()) {
       print("File successfully saved at $_filePath");
+
       // Send the file immediately after saving
-      await _uploadRecordingToServer(_filePath); // Upload file to server
+      await _uploadRecordingToServer(_filePath, artist, title); // Upload file to server
     } else {
       print("File does not exist at $_filePath. Save failed.");
     }
@@ -177,14 +178,17 @@ class SongPlayerCubit extends Cubit<SongPlayerState> {
     ));
   }
 
-  Future<void> _uploadRecordingToServer(String filePath) async {
+  Future<void> _uploadRecordingToServer(String filePath, String artist, String title) async {
     final uri = Uri.parse("http://10.0.2.2:5000/analyze_audio");
     final file = File(filePath);
 
     if (file.existsSync()) {
       try {
         final request = http.MultipartRequest('POST', uri)
+          ..fields['artist'] = artist
+          ..fields['title'] = title
           ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
         final response = await request.send();
         if (response.statusCode == 200) {
           print("File uploaded successfully!");

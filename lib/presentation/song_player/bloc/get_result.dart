@@ -15,7 +15,7 @@ class ResultsPage extends StatefulWidget {
 class _ResultsPageState extends State<ResultsPage> {
   bool isLoading = true;
   String fileContent = '';  // Biến lưu nội dung file
-  List<String> _wrongNotes = []; // Danh sách các nốt hát sai
+  List<Map<String, dynamic>> _wrongNotes = []; // Danh sách các nốt hát sai
 
   // Hàm tải file compare_results.json từ server và lưu vào thư mục results
   Future<void> fetchAndSaveResults() async {
@@ -30,7 +30,7 @@ class _ResultsPageState extends State<ResultsPage> {
         await readFileContent();
         final data = jsonDecode(response.body);
         setState(() {
-          _wrongNotes = List<String>.from(data);
+          _wrongNotes = List<Map<String, dynamic>>.from(data);
           isLoading = false;
         });
 
@@ -144,13 +144,11 @@ class _ResultsPageState extends State<ResultsPage> {
   }
 
   // Hàm tạo Card hiển thị lỗi
-  Widget _buildErrorCard(String error) {
-    final parts = error.split(', ');  // Tách chuỗi thành các phần
-
-    // Tách các phần thành Thời gian, Kỳ vọng, Thực tế
-    final time = parts[0].replaceFirst('time: ', '');
-    final expected = parts[1].replaceFirst('expected: ', '');
-    final actual = parts[2].replaceFirst('actual: ', '');
+  Widget _buildErrorCard(Map<String, dynamic> error) {
+    final time = error['time'].toString();
+    final expected = error['expected'];
+    final actual = error['actual'];
+    final lyric = error['lyric'];
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -167,12 +165,24 @@ class _ResultsPageState extends State<ResultsPage> {
             color: Colors.white,
           ),
         ),
-        title: Text(
-          "Thời gian: $time",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Thời gian: $time",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              "Lời: $lyric",
+              style: const TextStyle(
+                fontStyle: FontStyle.italic,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
         subtitle: Row(
           children: [

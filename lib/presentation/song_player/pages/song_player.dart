@@ -350,7 +350,10 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                       if (isPaused)
                         GestureDetector(
                           onTap: () {
-                            cubit.saveRecording();  
+                            cubit.saveRecording(
+                              artist: widget.songEntity.artist,
+                              title: widget.songEntity.title,
+                            );
                             Navigator.push(
                               context,
                               MaterialPageRoute(
