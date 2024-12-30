@@ -148,7 +148,7 @@ class _ResultsPageState extends State<ResultsPage> {
     final time = error['time'].toString();
     final expected = error['expected'];
     final actual = error['actual'];
-    final lyric = error['lyric'];
+    // final lyric = error['lyric'];
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -175,13 +175,13 @@ class _ResultsPageState extends State<ResultsPage> {
                 fontSize: 16,
               ),
             ),
-            Text(
-              "Lời: $lyric",
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-                fontSize: 14,
-              ),
-            ),
+            // Text(
+            //   "Lời: $lyric",
+            //   style: const TextStyle(
+            //     fontStyle: FontStyle.italic,
+            //     fontSize: 14,
+            //   ),
+            // ),
           ],
         ),
         subtitle: Row(

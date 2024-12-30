@@ -16,7 +16,7 @@ dependencies:
   flutter_bloc:
   hydrated_bloc:
   path_provider:
-  firebase_core: 
+  firebase_core:
   firebase_auth: 
   sign_in_button: 
   google_sign_in: 
@@ -27,7 +27,7 @@ dependencies:
   just_audio: 
   shared_preferences: 
   http: 
-  flutter_sound:
+  flutter_sound: ^9.17.8
   permission_handler:
   audio_waveforms:
   image_picker:
